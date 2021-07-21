@@ -99,27 +99,29 @@ class ResNet(nn.Module):
         self.conv_1 = nn.Sequential(
             nn.Conv2d(
                 in_channels=self.num_input_channels,
-                out_channels=16,
+                out_channels=64,
                 kernel_size=3,
                 stride=1,
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(num_features=16),
+            nn.BatchNorm2d(num_features=64),
             nn.ReLU(),
         )
-        self.layer_1 = BaseLayer(c_in=16, c_out=64)
-        self.layer_2 = BaseLayer(c_in=64, c_out=128)
+        self.layer_1 = BaseLayer(c_in=64, c_out=128)
+        self.layer_2 = BaseLayer(c_in=128, c_out=256)
+        self.layer_3 = BaseLayer(c_in=256, c_out=512)
 
-        self.gap = nn.AvgPool2d(kernel_size=10)
+        self.gap = nn.AvgPool2d(kernel_size=8)
         self.final_conv = nn.Conv2d(
-            in_channels=128, out_channels=self.num_classes, kernel_size=1, stride=1
+            in_channels=512, out_channels=self.num_classes, kernel_size=1, stride=1
         )
 
     def forward(self, x):
         x = self.conv_1(x)
         x = self.layer_1(x)
         x = self.layer_2(x)
+        x = self.layer_3(x)
 
         x = self.gap(x)
         x = self.final_conv(x)
@@ -132,4 +134,4 @@ if __name__ == "__main__":
 
     print("Model Summary: \n")
     model = ResNet(num_input_channels=3, num_classes=10)
-    summary(model, input_size=(2, 3, 32, 32))
+    summary(model, input_size=(2, 3, 64, 64))
