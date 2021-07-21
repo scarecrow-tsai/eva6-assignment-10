@@ -111,10 +111,11 @@ class ResNet(nn.Module):
         self.layer_1 = BaseLayer(c_in=64, c_out=128)
         self.layer_2 = BaseLayer(c_in=128, c_out=256)
         self.layer_3 = BaseLayer(c_in=256, c_out=512)
+        self.layer_4 = BaseLayer(c_in=512, c_out=1024)
 
-        self.gap = nn.AvgPool2d(kernel_size=8)
+        self.gap = nn.AvgPool2d(kernel_size=4)
         self.final_conv = nn.Conv2d(
-            in_channels=512, out_channels=self.num_classes, kernel_size=1, stride=1
+            in_channels=1024, out_channels=self.num_classes, kernel_size=1, stride=1
         )
 
     def forward(self, x):
@@ -122,6 +123,7 @@ class ResNet(nn.Module):
         x = self.layer_1(x)
         x = self.layer_2(x)
         x = self.layer_3(x)
+        x = self.layer_4(x)
 
         x = self.gap(x)
         x = self.final_conv(x)
@@ -133,5 +135,5 @@ if __name__ == "__main__":
     from torchinfo import summary
 
     print("Model Summary: \n")
-    model = ResNet(num_input_channels=3, num_classes=10)
+    model = ResNet(num_input_channels=3, num_classes=200)
     summary(model, input_size=(2, 3, 64, 64))
