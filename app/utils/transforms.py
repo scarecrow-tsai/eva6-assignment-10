@@ -15,18 +15,18 @@ def transforms(dataset_mean: int, dataset_std: int) -> dict:
     return {
         "train": A.Compose(
             [
-#                 A.RandomCrop(height=32, width=32, p=0.5),
-#                 A.PadIfNeeded(min_height=32 + 4, min_width=32 + 4, value=dataset_mean,),
-#                 A.CoarseDropout(
-#                     max_holes=1,
-#                     max_height=8,
-#                     max_width=8,
-#                     min_height=8,
-#                     min_width=8,
-#                     fill_value=0,
-#                     p=0.5,
-#                 ),
-                A.HorizontalFlip(p=0.5),
+                # A.RandomCrop(height=32, width=32, p=0.5),
+                # A.PadIfNeeded(min_height=32 + 4, min_width=32 + 4, value=dataset_mean,),
+                # A.CoarseDropout(
+                #     max_holes=1,
+                #     max_height=8,
+                #     max_width=8,
+                #     min_height=8,
+                #     min_width=8,
+                #     fill_value=0,
+                #     p=0.5,
+                # ),
+                # A.HorizontalFlip(p=0.5),
                 A.Normalize(mean=dataset_mean, std=dataset_std),
                 ToTensorV2(),
             ]

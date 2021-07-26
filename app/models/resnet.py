@@ -72,15 +72,20 @@ class BaseBlock(nn.Module):
 
 
 class BaseLayer(nn.Module):
-    def __init__(self, c_in, c_out):
+    def __init__(self, c_in, c_out, spatial_downsample):
         super(BaseLayer, self).__init__()
 
         self.c_in = c_in
         self.c_out = c_out
+        self.spatial_downsample = spatial_downsample
 
         self.base_layer = nn.Sequential(
-            BaseBlock(c_in=self.c_in, c_out=self.c_out, spatial_downsample=True,),
-            BaseBlock(c_in=self.c_out, c_out=self.c_out, spatial_downsample=False,),
+            BaseBlock(
+                c_in=self.c_in,
+                c_out=self.c_out,
+                spatial_downsample=self.spatial_downsample,
+            ),
+            BaseBlock(c_in=self.c_out, c_out=self.c_out, spatial_downsample=False),
         )
 
     def forward(self, x):
@@ -96,34 +101,52 @@ class ResNet(nn.Module):
         self.num_input_channels = num_input_channels
         self.num_classes = num_classes
 
-        self.conv_1 = nn.Sequential(
+        self.conv = nn.Sequential(
             nn.Conv2d(
                 in_channels=self.num_input_channels,
-                out_channels=64,
+                out_channels=32,
                 kernel_size=3,
                 stride=1,
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(num_features=64),
+            nn.BatchNorm2d(num_features=32),
             nn.ReLU(),
         )
-        self.layer_1 = BaseLayer(c_in=64, c_out=128)
-        self.layer_2 = BaseLayer(c_in=128, c_out=256)
-        self.layer_3 = BaseLayer(c_in=256, c_out=512)
-        self.layer_4 = BaseLayer(c_in=512, c_out=1024)
+        self.layer_1 = BaseLayer(c_in=32, c_out=64, spatial_downsample=True)
+        self.layer_2 = BaseLayer(c_in=64, c_out=64, spatial_downsample=False)
+        self.layer_3 = BaseLayer(c_in=64, c_out=64, spatial_downsample=False)
+
+        self.layer_4 = BaseLayer(c_in=64, c_out=128, spatial_downsample=True)
+        self.layer_5 = BaseLayer(c_in=128, c_out=128, spatial_downsample=False)
+        self.layer_6 = BaseLayer(c_in=128, c_out=128, spatial_downsample=False)
+
+        self.layer_7 = BaseLayer(c_in=128, c_out=256, spatial_downsample=True)
+        self.layer_8 = BaseLayer(c_in=256, c_out=256, spatial_downsample=False)
+        self.layer_9 = BaseLayer(c_in=256, c_out=256, spatial_downsample=False)
+
+        self.layer_10 = BaseLayer(c_in=256, c_out=512, spatial_downsample=True)
+        self.layer_11 = BaseLayer(c_in=512, c_out=512, spatial_downsample=False)
 
         self.gap = nn.AvgPool2d(kernel_size=4)
+
         self.final_conv = nn.Conv2d(
-            in_channels=1024, out_channels=self.num_classes, kernel_size=1, stride=1
+            in_channels=512, out_channels=self.num_classes, kernel_size=1, stride=1
         )
 
     def forward(self, x):
-        x = self.conv_1(x)
+        x = self.conv(x)
         x = self.layer_1(x)
         x = self.layer_2(x)
         x = self.layer_3(x)
         x = self.layer_4(x)
+        x = self.layer_5(x)
+        x = self.layer_6(x)
+        x = self.layer_7(x)
+        x = self.layer_8(x)
+        x = self.layer_9(x)
+        x = self.layer_10(x)
+        x = self.layer_11(x)
 
         x = self.gap(x)
         x = self.final_conv(x)
