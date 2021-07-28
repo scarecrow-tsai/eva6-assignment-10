@@ -83,6 +83,7 @@ def train_loop(
         "CyclicLR",
         "OneCycleLR",
         "CosineAnnealingWarmRestarts",
+        None,
     ]:
         raise ValueError("Unsupported learning rate scheduler.")
 
