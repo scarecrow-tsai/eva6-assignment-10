@@ -2,7 +2,7 @@
 
 The final notebook is `main.ipynb`.
 
-The folder structure is as follows:
+The folder structure is as follows:-
 
 ```
 - app
