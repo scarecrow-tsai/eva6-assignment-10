@@ -129,7 +129,25 @@ def train_loop(
         ##############################################################################
         # VALIDATE
         ##############################################################################
-        val_epoch_loss, val_epoch_acc = validate(model, criterion, val_loader, device)
+        # val_epoch_loss, val_epoch_acc = validate(model, criterion, val_loader, device)
+        val_epoch_loss = 0
+        val_epoch_acc = 0
+
+        with torch.no_grad():
+            model.eval()
+            for X_val_batch, y_val_batch in val_loader:
+                X_val_batch, y_val_batch = (
+                    X_val_batch.to(device),
+                    y_val_batch.to(device),
+                )
+
+                y_val_pred = model(X_val_batch).squeeze()
+
+                val_loss = criterion(y_val_pred, y_val_batch)
+                val_acc = multi_acc(y_val_pred, y_val_batch)
+
+                val_epoch_loss += val_loss.item()
+                val_epoch_acc += val_acc.item()
 
         if scheduler.__class__.__name__ in [
             "LambdaLR",
